@@ -58,6 +58,20 @@ def rebin_spectrum(lamdas, flux, errors, pixel_weights, instrumental_resolution=
     noise, _, _ = P.log_rebin(lam_range_gal, errors, velscale=velscale)
     weights, _, _ = P.log_rebin(lam_range_gal, pixel_weights, velscale=velscale)
 
+    
+    #########################
+    """
+    WILL COLLIER ADDITION
+    """
+    if len(noise)!=len(galaxy):
+        array = np.zeros_like(galaxy)
+        noise = array + np.nanmedian(noise)
+    if len(weights)!=len(galaxy):
+        weights = np.ones_like(galaxy)
+        # noise = array + np.nanmedian(weights)
+    #########################
+
+
     all_sky = None
     if skyspecs is not None:
         O2_sky, _, _ = P.log_rebin(lam_range_gal, skyspecs[0, :], velscale=velscale)
@@ -390,10 +404,55 @@ def get_best_fit_template(theta, parameters, convolve=True):
     # Add things together- see Appendix of Vaughan+ 2018
     template = np.exp(np.log(base_template) + general_correction + positive_only_correction + na_correction + carbon_correction)
 
+
+    """
+    Will Collier Additions
+    
+    Try to incorporate a second population
+    """
+
+    if theta.get('Ca_2') != None:
+        
+        ratio = theta['ratio'].value
+        age_2=theta['age_2'].value  
+        Z_2=theta['Z_2'].value        
+        base_template_2 = _make_model(age_2, Z_2, imf_x1, imf_x2, interp_funct, logLams)
+
+        Na_abundance_2=theta['Na_2'].value
+        general_abundances_2=np.array([theta['Ca_2'].value, theta['Fe_2'].value, theta['C_2'].value, theta['N_2'].value, theta['Ti_2'].value, theta['Mg_2'].value, theta['Si_2'].value, theta['Ba_2'].value])  
+        positive_abundances_2=np.array([theta['as_Fe_2'].value, theta['Cr_2'].value,theta['Mn_2'].value,theta['Ni_2'].value,theta['Co_2'].value, theta['Eu_2'].value,theta['Sr_2'].value, theta['K_2'].value,theta['V_2'].value,theta['Cu_2'].value])
+    
+        #Make the correction for elements which vary >0.0
+        positive_only_correction_2=_get_correction(positive_only_interp, logLams, np.arange(len(positive_abundances_2)), positive_abundances_2, age_2, Z_2)
+    
+        #Response function for general element corrections
+        general_correction_2=_get_correction(general_interp, logLams, np.arange(len(general_abundances_2)), general_abundances_2, age_2, Z_2)   
+    
+        #Have to treat Na differently
+        na_correction_2=na_interp((Na_abundance_2, age_2, Z_2, logLams))    
+        
+        
+        template=(np.exp(np.log(base_template_2)+general_correction_2+positive_only_correction_2+na_correction_2))*(ratio) + (np.exp(np.log(base_template)+general_correction+positive_only_correction+na_correction))*(1-ratio)
+
+        # print(base_template,base_template_2)
+
+        if convolve:
+            template=P.convolve_gauss_hermite(template, velscale=velscale, start=[vel, sigma], npix=len(galaxy), vsyst=vsyst).squeeze()
+            logLams=logLam_gal.copy()
+            
+        np.savetxt('/Users/kbmb68/Documents/MNELLS/MUSE_obs/LSQ13cwp/FORS2/template.txt',np.array([template,logLams]))
+            
+        return logLams, template, base_template*(1-ratio)+base_template_2*(ratio)
+    """
+    Finish Addition
+    """
+
+
+
     if convolve:
         template = P.convolve_gauss_hermite(template, velscale=velscale, start=[vel, sigma], npix=len(galaxy), vsyst=vsyst).squeeze()
         logLams = logLam_gal.copy()
-
+    np.savetxt('/Users/kbmb68/Documents/MNELLS/MUSE_obs/LSQ13cwp/FORS2/template.txt',template)
     return logLams, template, base_template
 
 
