@@ -43,6 +43,14 @@ def rebin_spectrum(lamdas, flux, errors, pixel_weights, instrumental_resolution=
     lam_range_gal = np.round(np.array([lower, upper]))
     mask = (lamdas >= lower) & (lamdas <= upper)
 
+    """
+    WCOLLIER addition --> had an issue with mask being longer than flux 
+    """
+    if mask.shape > lamdas.shape:
+        mask = mask[:-1]
+
+
+
     flux = flux[mask]
     errors = errors[mask]
     pixel_weights = pixel_weights[mask]

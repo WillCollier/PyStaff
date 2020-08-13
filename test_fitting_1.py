@@ -191,9 +191,18 @@ if 1==1:
     #This should be the FWHM in pixels of the instrument used to observe the spectrum.
     FWHM_gal=3.0
     
+    base_template_location = '/Users/kbmb68/Documents/CvDmodels/vcj_dir'
+    varelem_template_location = '/Users/kbmb68/Documents/CvDmodels/Atlas_dir'
+    
     #Now set up the spectral fitting class
     print('Setting up the fit')
-    fit0 = SpectralFit(lamdas, flux, errors, pixel_weights, fit_wavelengths, FWHM_gal, instrumental_resolution=instrumental_resolution, skyspecs=skyspecs, element_imf=element_imf)
+    fit0 = SpectralFit(lamdas, flux, errors, pixel_weights, fit_wavelengths, 
+                       FWHM_gal, base_template_location=base_template_location, 
+                       varelem_template_location=varelem_template_location, 
+                       instrumental_resolution=instrumental_resolution, 
+                       skyspecs=skyspecs, element_imf=element_imf)
+    
+    
     fit0.set_up_fit()
 
     thetas_in = []
@@ -510,8 +519,21 @@ if 1==1:
         print('Setting up the fit')
         # fit=SpectralFit(lamdas, model, model/100., pixel_weights, fit_wavelengths, FWHM_gal, instrumental_resolution=instrumental_resolution, skyspecs=skyspecs, element_imf=element_imf)
 
-        fit=SpectralFit(lamdas[:-1], template, template/100., pixel_weights, fit_wavelengths, FWHM_gal, instrumental_resolution=instrumental_resolution, skyspecs=skyspecs, element_imf=element_imf)
-
+        # fit=SpectralFit(lamdas[:-1], template, template/100., pixel_weights, fit_wavelengths, FWHM_gal, instrumental_resolution=instrumental_resolution, skyspecs=skyspecs, element_imf=element_imf)
+        lamdas_in = lamdas[:-1]
+        
+        
+        # #Now switch the weights of these pixels to 0
+        # pixel_weights=np.ones_like(template)
+        # pixel_weights[~pixel_mask]=0.0
+        
+        pixel_weights_in = pixel_weights[:-1]
+        fit=SpectralFit(lamdas_in, template, template/100.,
+                    pixel_weights_in, fit_wavelengths, FWHM_gal, 
+                    base_template_location=base_template_location,
+                    varelem_template_location=varelem_template_location, 
+                    instrumental_resolution=instrumental_resolution, 
+                    skyspecs=skyspecs, element_imf=element_imf)
 
         fit.set_up_fit()
 
