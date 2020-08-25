@@ -714,7 +714,7 @@ def plot(x, y, title, xlab, ylab, df):
     # plt.ylabel(ylab)
     # plt.xlabel(xlab)
     plt.title(title)
-    plt.savefig('plots_out/{}vs{}.png'.format(x,y))
+    # plt.savefig('plots_out/{}vs{}.png'.format(x,y))
     # plt.show()
 
     return
@@ -725,8 +725,8 @@ ys = np.array(['sigma_fit','age1_fit', 'age2_fit', 'Z1_fit', 'Z2_fit', 'ratio_fi
 xlabel = 'input'
 ylabel = 'fitted'
 
-# for i in range(len(titles)):
-#     plot(xs[i], ys[i], titles[i], xlabel, ylabel, frame_storevals)
+for i in range(len(titles)):
+    plot(xs[i], ys[i], titles[i], xlabel, ylabel, frame_storevals)
 
 # plt.figure()
 # plt.scatter(age1_in, age1_fit)

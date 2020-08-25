@@ -621,7 +621,7 @@ def lnlike(theta, parameters, plot=False, ret_specs=False):
 
     # Make the emission lines:
     if emission_lines is not None:
-        unconvolved_em_lines = Hbeta_flux * emission_lines[:, 0] + Ha_flux * emission_lines[:, 1] + SII_6716 * emission_lines[:, 2] + SII_6731 * emission_lines[:, 3] + OIII * emission_lines[:, 4] + OI * emission_lines[:, 5] + NII * emission_lines[:, 6]
+        unconvolved_em_lines = Hbeta_flux * emission_lines[:, 0] #+ Ha_flux * emission_lines[:, 1] + SII_6716 * emission_lines[:, 2] + SII_6731 * emission_lines[:, 3] + OIII * emission_lines[:, 4] + OI * emission_lines[:, 5] + NII * emission_lines[:, 6]
         convolved_em_lines = P.convolve_gauss_hermite(unconvolved_em_lines, velscale=velscale, start=[vel_gas, sig_gas], npix=len(galaxy), vsyst=vsyst).squeeze()
     else:
         convolved_em_lines = np.zeros_like(galaxy)
